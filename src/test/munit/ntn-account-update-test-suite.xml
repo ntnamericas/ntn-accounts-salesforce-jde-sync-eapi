@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="ntn-account-update-test-suite.xml" />
+	<munit:test name="ntn-account-update-test-suite-ntn-account-updateFlowTest" doc:id="b08541e3-e102-41cf-bab0-47e5e86ab41c" description="Test" expectedErrorType="ANY">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="9c0cd270-9ac2-4562-814d-496be0459f14" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="${papi.method}" attributeName="method" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="d75197a6-9907-4056-8d52-b6867c4d6070" >
+				<munit:payload value="#[MunitTools::getResourceAsString('sfInput.xml')]" mediaType="application/xml" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to ntn-account-updateFlow" doc:id="bc6f4446-b211-4891-b784-21e290db7d53" name="ntn-account-updateFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="c113d4c7-05c7-4331-95ba-cdc902f21e45" expression="payload" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="health-test-suite-get-healthTest" doc:id="1fb8cde4-2e43-4159-ba25-2219b63253ab" description="Test">
+		<munit:behavior>
+			<try doc:name="Try" doc:id="840eaea3-3ddf-417b-a88f-7b29b7ddbad2" >
+				<munit-tools:mock-when doc:name="Mock when" doc:id="e7bbfc73-545f-4e8e-8ace-baedb2453c91" processor="http:request">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="GET" attributeName="method" />
+					<munit-tools:with-attribute whereValue="xyz" attributeName="correlationId" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			</try>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get-health" doc:id="18321f03-1bc2-4ca0-b34e-6a07808cea72" name="get-health" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="8a99c5ca-f3ac-4068-9a35-adda85658d16" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="End Log /health" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="health-test-suite-get-healthTest1" doc:id="879762e6-4fe5-4692-bfa9-de9bd71c0b6e" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="698bb3d5-f30d-45fd-bb4d-42ec5e535bd1" processor="flow-ref" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="check-all-dependencies-are-alive" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when1" doc:id="75020a99-bf84-4ce2-ad29-c31fe2ffadb9" processor="raise-error" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Raise error" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="46434f4d-b6cd-4e06-99bb-8298df820b48" >
+				<munit:payload value="MULE:CRITICAL" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to get-health" doc:id="3945a4df-e503-4ec2-894c-fff4a5b7f17d" name="get-health" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="09bdc48b-7b6e-4122-86e0-a39f2fe718bd" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="health-test-suite-get-health_cars" doc:id="ffe45ee5-f768-465c-9768-68d4f6f4b6d3" description="Test" expectedErrorType="ANY">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request" doc:id="642f2562-c306-42ad-b1dd-b4da60bd0a81" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="MOCK: Request to Downstream Dependency" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="mockHttpsRequest" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get-health" doc:id="afd088e4-0c4d-44a7-abf3-ed2c2a36a9a6" name="get-health" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call http request" doc:id="2c0375d2-a567-4ab0-bea1-237b23b4c8e2" processor="http:request" atLeast="1" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="MOCK: Request to Downstream Dependency" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="mockHttpsRequest" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:assert-that doc:name="Assert that payload is invalid" doc:id="1391bca1-4a79-488f-909d-f4efa8879884" message="Bad Request-payload is invalid" is="#[MunitTools::notNullValue()]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="api-test-suite-apiFlowTest" doc:id="f6e9a8da-d1e3-494d-86c4-6f299799abad" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="ef175b48-7be1-4354-a692-3a95e76cc194" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="APIkit Router" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to apiFlow" doc:id="a82090d5-fe6c-475a-a60d-cbb688465470" name="apiFlow" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="34c00a01-1a22-4c67-b75c-c2b74656b64b" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+
+
+</mule>

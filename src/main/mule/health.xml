@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+    xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core 
+    http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+    http://www.mulesoft.org/schema/mule/json-logger 
+    http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="get-health" doc:id="635808f0-b0c7-4afa-ade1-3700572da891" doc:description="the flow checks the health of the apis">
+        <logger level="INFO" doc:name="Start Log /health" doc:id="65df8bcf-f6cf-411c-81b7-4ec831a4182f" message="Checking Application Health #[payload]"/>
+		<flow-ref doc:name="check-all-dependencies-are-alive" doc:id="30f90370-6358-441f-abd9-88e0b89f2b8b" name="check-all-dependencies-are-alive"/>
+        <choice doc:name="Health Choice Router" doc:id="f9e57698-5557-4c30-ad8b-3e7251ac3922" >
+            <when expression='#[vars.ready == true]'>
+                <set-variable value="#[200 as Number]" doc:name="httpStatus" doc:id="77f23e27-42de-44b9-924b-3a69ef4419e1" variableName="httpStatus" />
+				<ee:transform doc:name="Health status" doc:id="4afbea5b-1abb-4158-93b8-1e3142667285" >
+					<ee:message >
+						<ee:set-payload resource="dwl/getHealthResponse.dwl" />
+					</ee:message>
+				</ee:transform>
+            </when>
+            <otherwise>
+                <raise-error doc:name="Raise error" doc:id="6f0acf20-28dd-4579-a70c-64c8ac2b1248" type="HEALTHCHECK:ERROR" description="Downstream dependencies for API are down."/>
+            </otherwise>
+        </choice>
+        <logger level="INFO" doc:name="End Log /health" doc:id="0d750ac8-5007-4653-8c1d-c12f3e7ac003" message="Checking Application Health #[payload]"/>
+        <error-handler>
+            <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e79a9223-6d6a-4796-9981-fb5aab7bd993" type="ANY">
+                <set-variable value="#[500 as Number]" doc:name="httpStatus" doc:id="29a9d64d-de36-4fa0-812e-378c8b9bacbd" variableName="httpStatus"/>
+                <logger level="INFO" doc:name="Log Before Transform" doc:id="c81d77ce-8a48-4ce2-8179-19131b0bfc62" message="Log Before Transform #[payload]"/>
+				<ee:transform doc:name="Transform Message" doc:id="2468bb0b-0164-42a0-ad24-c26834b54ce0" >
+					<ee:message >
+						<ee:set-payload resource="dwl/getHealthUnhealthyResponse.dwl" />
+					</ee:message>
+				</ee:transform>
+                <logger level="INFO" doc:name="Log After Transform" doc:id="3825e504-c783-4705-a3ef-98a0e13cd94a" message="Log After Transform #[payload]"/>
+				<logger level="INFO" doc:name="End Log /health" doc:id="47031846-ff8a-43b8-b589-26590718c391" message="Checking Application Health #[payload]"/>
+            
+</on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="check-all-dependencies-are-alive" doc:id="1123b259-c032-448c-90be-f6e2834d249b">
+        <logger level="INFO" doc:name="Start Log Downstream Dependency Check" doc:id="c86d9ae2-6bb7-4f2e-9107-ba8fc74e3169" message="Checking Application Health #[payload]"/>
+		<try doc:name="Try" doc:id="abf4078c-02ef-48df-af31-ed35a30c9613">
+            <logger level="INFO" doc:name="Log Before Request" doc:id="1f778611-584a-4073-8bf8-a274724dd277" message="Log Before Request #[payload]"/>
+			<until-successful maxRetries="${deps.health.maxRetries}" doc:name="Until Successful" doc:id="8b456a7e-0b58-4760-9b85-bd831cdbc040" millisBetweenRetries="${deps.health.milliesBetweenRetries}">
+                <http:request method="GET" doc:name="MOCK: Request to Downstream Dependency" doc:id="b9e6dc64-3871-445e-b925-423be1aa95d6" config-ref="mockHttpsRequest" sendCorrelationId="ALWAYS" correlationId="#[vars.correlationId]" path="${mock.https.request.basepath}" responseTimeout="${deps.health.timeoutMillis}">
+                <http:query-params><![CDATA[#[output application/java
+---
+{
+	"foo" : "bar"
+}]]]></http:query-params>
+                    <http:response-validator>
+                        <http:success-status-code-validator values="200..299" />
+                    </http:response-validator>
+            </http:request>
+            </until-successful>
+            <logger level="INFO" doc:name="Log After Request" doc:id="879d46e3-e332-44f6-b90c-1649af1e04dc" message="Log After Request #[payload]"/>
+			<set-variable value="#[true]" doc:name="ready" doc:id="cc0fcf35-0769-497c-914b-8decdc1f17b6" variableName="ready" />
+        </try>
+        <logger level="INFO" doc:name="End Log Downstream Dependency Check" doc:id="37bd827e-0ff0-41f5-a3b3-a09ebc8b593a" message="Checking Application Health #[payload]"/>
+		<error-handler >
+            <on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="bb5b1748-5bad-43de-ab1f-5c47507ba0b2" >
+                <logger level="WARN" doc:name="Downstream Dependency is Down" doc:id="171899cb-29ac-4a11-be1e-23a885aa1001" message="#['Dependency at /health is NOT alive']"/>
+				<set-variable value="#[false]" doc:name="ready" doc:id="bee7c223-0fa5-4e61-bcfc-ae5892d97157" variableName="ready" />
+            </on-error-continue>
+        </error-handler>
+    </flow>    
+
+</mule>

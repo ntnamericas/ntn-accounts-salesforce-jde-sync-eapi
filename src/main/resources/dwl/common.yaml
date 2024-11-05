@@ -1,0 +1,7 @@
+api:
+  name : "catalyst-error-handler"
+  id: "123"
+  version : "0.0.1"
+  env : "DEV"
+  flow.initialState : "started"
+  layer : "SYSTEM"

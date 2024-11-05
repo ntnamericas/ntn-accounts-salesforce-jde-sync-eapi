@@ -1,0 +1,13 @@
+{
+  "main": "ntn-salesforce-sync-eapi.raml",
+  "name": "ntn-salesforce-sync-eapi",
+  "groupId": "e78cb80e-5627-43bc-8962-f4d269c5ef87",
+  "assetId": "ntn-salesforce-sync-eapi",
+  "version": "1.0.0",
+  "classifier": "raml",
+  "tags": [],
+  "descriptorVersion": "1.0.0",
+  "organizationId": "e78cb80e-5627-43bc-8962-f4d269c5ef87",
+  "apiVersion": "v1",
+  "originalFormatVersion": "1.0"
+}

@@ -1,0 +1,45 @@
+#%RAML 1.0
+title: ntn-accounts-salesforce-jde-sync-eapi
+
+version: v1
+baseUri: https://{app-name}/api/{version}
+
+protocols:
+  - HTTPS
+
+mediaType: [application/xml] 
+uses:
+  dt: /libraries/data-types.raml
+  rt: /libraries/resource-type.raml
+resourceTypes:
+  update: !include /resource-types/create-update.raml
+
+
+/accounts:
+  get:
+    displayName: Create or Update the account details 
+    description : 
+      resource creates or updates the salesforce account details in JD business service
+    responses:
+        200:
+          description: Successful response with person details
+          body:    
+            application/xml:
+              example: !include /examples/sfInput.xml            
+  post:
+    displayName: Create or Update the account details 
+    description : 
+      resource creates or updates the salesforce account details in JD business service
+    responses:
+        201:
+          description: Successful response with person details
+          body:    
+            application/xml:
+              example: !include /examples/sfInput.xml   
+
+
+
+
+
+
+

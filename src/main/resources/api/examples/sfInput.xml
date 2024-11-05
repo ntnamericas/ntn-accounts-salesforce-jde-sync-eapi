@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <soapenv:Body>
+  <notifications xmlns="http://soap.sforce.com/2005/09/outbound">
+   <OrganizationId>00DVC000000qkN02AI</OrganizationId>
+   <ActionId>04kVC00000541sHYAQ</ActionId>
+   <SessionId>00DVC000000qkN0!AQEAQNoSxLNAmgasq9b26OLm4yoh.wE4cnAJeCQ3MWurg015YBSu0MjnH4QOQvOXO4K1V4QJVWexfzo2NuAvuQSIVgLfhccK</SessionId>
+   <EnterpriseUrl>https://ntnconnect--muledev.sandbox.my.salesforce.com/services/Soap/c/60.0/00DVC000000qkN0</EnterpriseUrl>
+   <PartnerUrl>https://ntnconnect--muledev.sandbox.my.salesforce.com/services/Soap/u/60.0/00DVC000000qkN0</PartnerUrl>
+   <Notification>
+    <Id>04lVC000005VgcrYAC</Id>
+    <sObject xsi:type="sf:Account" xmlns:sf="urn:sobject.enterprise.soap.sforce.com">
+     <sf:Id>001VC00000HKSKxYAP</sf:Id>
+     <sf:Alpha_Name__c>TEST MULEDEV ACCOUNT</sf:Alpha_Name__c>
+     <sf:Bill_To_Number__c>29188.0</sf:Bill_To_Number__c>
+     <sf:Billing_Address_Type__c>X-Bill To and Ship To Address</sf:Billing_Address_Type__c>
+     <sf:Customer_Price_Group_40PC__c>MRO-Advanced Pricing</sf:Customer_Price_Group_40PC__c>
+     <sf:Customer_Service_Coordinator_Code__c>RN-Rod Neville</sf:Customer_Service_Coordinator_Code__c>
+     <sf:Duns_Number__c>12345678</sf:Duns_Number__c>
+     <sf:Engineer__c>C2S-Trevor Schotsman</sf:Engineer__c>
+     <sf:Fax>1234567898</sf:Fax>
+     <sf:JDE_AddressNumber__c>29188.0</sf:JDE_AddressNumber__c>
+     <sf:MKT_REP__c>RN-Ron Neville</sf:MKT_REP__c>
+     <sf:Marketing_Rep_Code__c>RN-Ron Neville</sf:Marketing_Rep_Code__c>
+     <sf:NBCA_Market__c>30-Industrial Aftermarket</sf:NBCA_Market__c>
+     <sf:NTN_ADV_PRC_GRP__c>GSABA45-GSABA45</sf:NTN_ADV_PRC_GRP__c>
+     <sf:NTN_Company_Name__c>NBCC</sf:NTN_Company_Name__c>
+     <sf:NTN_Customer_Group__c>3-Regular</sf:NTN_Customer_Group__c>
+     <sf:NTN_Global_Market__c>IOE-Industrial OEM</sf:NTN_Global_Market__c>
+     <sf:NTN_Market_Code__c>NN-Transportation (Snowmobile)</sf:NTN_Market_Code__c>
+     <sf:NTN_Sales_Rep__c>V2E-Darrell McKay</sf:NTN_Sales_Rep__c>
+     <sf:Parent_Number__c>29366.0</sf:Parent_Number__c>
+     <sf:Phone>(902)634-8821</sf:Phone>
+     <sf:Region__c>EAS-Eastern Region</sf:Region__c>
+     <sf:ShippingCity>LUNENBURG</sf:ShippingCity>
+     <sf:ShippingCountryCode>CA</sf:ShippingCountryCode>
+     <sf:ShippingPostalCode>B0J 2C0</sf:ShippingPostalCode>
+     <sf:ShippingStateCode>NS</sf:ShippingStateCode>
+     <sf:ShippingStreet>81 TANNERY RD.</sf:ShippingStreet>
+    </sObject>
+   </Notification>
+  </notifications>
+ </soapenv:Body>
+</soapenv:Envelope>
