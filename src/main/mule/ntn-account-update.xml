@@ -9,7 +9,7 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/module-json-logger http://www.mulesoft.org/schema/mule/module-json-logger/current/mule-module-json-logger.xsd">
 	<http:request-config name="NTN-accounts-papi" doc:name="HTTP Request configuration" doc:id="e61217f5-e20b-4689-a037-1d5b59bf5704" >
-		<http:request-connection host="${papi.host}" port="${papi.port}" protocol="HTTPS"/>
+		<http:request-connection host="${papi.host}" port="${papi.port}" connectionIdleTimeout="300000" protocol="HTTPS"/>
 	</http:request-config>
 	<module-json-logger:config name="Json_logger_Config" doc:name="Json-logger Config" doc:id="454315af-1860-4392-87a5-8e60ebdce35d" />
 	<flow name="ntn-account-updateFlow" doc:id="31d9aced-3c01-4b65-81a6-fe9fcba7cc8b" >
@@ -29,14 +29,19 @@ http://www.mulesoft.org/schema/mule/module-json-logger http://www.mulesoft.org/s
 }]]]></http:headers>
 		</http:request>
 			<error-handler >
-				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="eab4d301-b890-4cd7-9b81-6b7f0e37d8d1" type="HTTP:BAD_REQUEST, HTTP:FORBIDDEN, HTTP:INTERNAL_SERVER_ERROR, HTTP:METHOD_NOT_ALLOWED, HTTP:NOT_ACCEPTABLE, HTTP:NOT_FOUND, HTTP:PARSING, HTTP:RETRY_EXHAUSTED, HTTP:SERVICE_UNAVAILABLE, HTTP:TIMEOUT, HTTP:TOO_MANY_REQUESTS, HTTP:UNAUTHORIZED, HTTP:UNSUPPORTED_MEDIA_TYPE, EXPRESSION, STREAM_MAXIMUM_SIZE_EXCEEDED">
-					<logger level="INFO" doc:name="On Error Continue Logger" doc:id="e63ce519-73df-4250-a50c-7cfeebe7955d" message="#[payload]"/>
-				</on-error-continue>
-				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="93226c14-8c3b-4fd6-b4a6-d5918c77d1aa" type="HTTP:CLIENT_SECURITY, HTTP:CONNECTIVITY, HTTP:SECURITY, HTTP:UNAUTHORIZED">
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="93226c14-8c3b-4fd6-b4a6-d5918c77d1aa" type="ANY">
 					<logger level="INFO" doc:name="On Error Propagate Logger" doc:id="f71459cc-5d2d-44f1-9a00-33f769afec70" message="#[payload]"/>
 				</on-error-propagate>
 			</error-handler>
 		</try>
+		<ee:transform doc:name="Transform Message" doc:id="03dc488a-1edc-44a6-8184-37a61e9ca1c1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<logger level="INFO" doc:name="End Logger of EAPI" doc:id="c92db340-1653-4cc0-a9a3-c74bdd8ff748" message="#[payload]"/>
 	</flow>
 </mule>
