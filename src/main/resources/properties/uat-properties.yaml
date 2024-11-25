@@ -5,7 +5,18 @@ http:
   
   
 papi: 
-  host: "0.0.0.0"
-  port: "8082"
+  host: "ntn-accounts-sf-jde-sync-papi-dev-tpw8fz.89unfu.usa-e2.cloudhub.io"
+  port: "443"
   method: "POST"
   path: "/accounts"  
+
+  
+#app name
+app:
+  name: "ntn-accounts-salesforce-jde-sync-eapi"  
+  env: "UAT"  
+  
+smtp:
+  host: "smtp.office365.com"
+  port: "25"  
+  to: "simran.modi@prowesssoft.com"

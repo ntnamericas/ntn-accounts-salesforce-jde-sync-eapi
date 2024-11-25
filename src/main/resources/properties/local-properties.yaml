@@ -10,4 +10,12 @@ papi:
   method: "POST"
   path: "/accounts"  
 
-api.id: ""
+#app name
+app:
+  name: "ntn-accounts-salesforce-jde-sync-eapi"  
+  env: "DEV"  
+  
+smtp:
+  host: "smtp.office365.com"
+  port: "25"  
+  to: "simran.modi@prowesssoft.com"
