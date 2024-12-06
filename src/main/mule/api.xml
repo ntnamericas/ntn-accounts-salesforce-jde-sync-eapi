@@ -5,7 +5,12 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
-
+	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="5a44a8b6-dfaf-4983-9855-506ec0f45ae5" name="Router" api="ntn-accounts-salesforce-jde-sync-eapi.raml" >
+		<apikit:flow-mappings >
+			<apikit:flow-mapping resource="/accounts" action="get" flow-ref="ntn-account-updateFlow" />
+			<apikit:flow-mapping resource="/accounts" action="post" flow-ref="ntn-account-updateFlow" />
+		</apikit:flow-mappings>
+	</apikit:config>
 	<flow name="apiFlow" doc:id="00e87378-d3b8-4685-9a4f-cebcbefcbfa1" >
 		<http:listener doc:name="Listener" doc:id="a8520a0d-0473-49e7-b65f-7627ea994fc2" config-ref="ntn-eapi-listener" path="/*"/>
 		<apikit:router doc:name="APIkit Router" doc:id="3df28ea5-6df6-48ad-8806-47c74d5c45a3" config-ref="Router"/>

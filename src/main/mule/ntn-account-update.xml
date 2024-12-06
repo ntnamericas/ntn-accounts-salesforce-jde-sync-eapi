@@ -10,6 +10,10 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/module-json-logger http://www.mulesoft.org/schema/mule/module-json-logger/current/mule-module-json-logger.xsd">
+	<http:request-config name="NTN-accounts-papi" doc:name="HTTP Request configuration" doc:id="e61217f5-e20b-4689-a037-1d5b59bf5704" >
+		<http:request-connection host="${papi.host}" port="${papi.port}" connectionIdleTimeout="300000" protocol="HTTPS"/>
+	</http:request-config>
+	<module-json-logger:config name="Json_logger_Config" doc:name="Json-logger Config" doc:id="454315af-1860-4392-87a5-8e60ebdce35d" />
 	<flow name="ntn-account-updateFlow" doc:id="31d9aced-3c01-4b65-81a6-fe9fcba7cc8b" >
 		<logger level="INFO" doc:name="Incoming SOAP Message" doc:id="cd992a86-e61a-41ca-82f9-09e613634e17" message="#[payload]"/>
 		<ee:transform doc:name="Transformed JSON for PAPI" doc:id="c7099923-6235-4e07-a1cb-5bc51d5989eb" >
@@ -57,7 +61,7 @@ ns sforce http://soap.sforce.com/2005/09/outbound
   'soapenv:Envelope' @('xmlns:soapenv': "http://schemas.xmlsoap.org/soap/envelope/"): {
     'soapenv:Body': {
       'notificationsResponse' @('xmlns': "http://soap.sforce.com/2005/09/outbound"): {
-        Ack: "false"
+        Ack: false
       }
     }
   }
@@ -65,6 +69,7 @@ ns sforce http://soap.sforce.com/2005/09/outbound
 ]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+					<logger level="INFO" doc:name="Logger" doc:id="fc6b1c5d-a7bb-45ae-a1d1-e34267d1d7ad" message="#[payload]"/>
 				</on-error-propagate>
 			</error-handler>
 		</try>
