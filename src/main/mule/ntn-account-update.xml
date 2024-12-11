@@ -61,7 +61,7 @@ ns sforce http://soap.sforce.com/2005/09/outbound
   'soapenv:Envelope' @('xmlns:soapenv': "http://schemas.xmlsoap.org/soap/envelope/"): {
     'soapenv:Body': {
       'notificationsResponse' @('xmlns': "http://soap.sforce.com/2005/09/outbound"): {
-        Ack: false
+        Ack: "false"
       }
     }
   }
@@ -69,7 +69,6 @@ ns sforce http://soap.sforce.com/2005/09/outbound
 ]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-					<logger level="INFO" doc:name="Logger" doc:id="fc6b1c5d-a7bb-45ae-a1d1-e34267d1d7ad" message="#[payload]"/>
 				</on-error-propagate>
 			</error-handler>
 		</try>
