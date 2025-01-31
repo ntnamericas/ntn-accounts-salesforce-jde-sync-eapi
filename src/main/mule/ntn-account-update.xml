@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:module-json-logger="http://www.mulesoft.org/schema/mule/module-json-logger" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:module-json-logger="http://www.mulesoft.org/schema/mule/module-json-logger" xmlns:db="http://www.mulesoft.org/schema/mule/db"
 	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
@@ -14,13 +16,28 @@ http://www.mulesoft.org/schema/mule/module-json-logger http://www.mulesoft.org/s
 	<module-json-logger:config name="Json_logger_Config" doc:name="Json-logger Config" doc:id="454315af-1860-4392-87a5-8e60ebdce35d" />
 	<flow name="ntn-account-updateFlow" doc:id="31d9aced-3c01-4b65-81a6-fe9fcba7cc8b" >
 		<logger level="INFO" doc:name="Incoming SOAP Message" doc:id="cd992a86-e61a-41ca-82f9-09e613634e17" message="#[payload]"/>
-		<ee:transform doc:name="Transformed JSON for PAPI" doc:id="c7099923-6235-4e07-a1cb-5bc51d5989eb" >
+		<ee:transform doc:name="Transform Message" doc:id="13aa5e9d-cc70-48f9-bfb8-aac20d68bf19" >
 			<ee:message >
-				<ee:set-payload resource="dwl/jsonPapi.dwl" />
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.Envelope.Body.notifications.*Notification]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Transformed JSON for PAPI" doc:id="4c447fa1-cb4c-4a3a-8a27-4c054ec549a0" message="#[payload]"/>
-		<try doc:name="Try" doc:id="2aeedae4-5073-4474-9a8d-ff5fae7ba58a" >
+		<foreach doc:name="For Each" doc:id="6d4bd3a8-4b54-4493-bc03-93a5ad03035d" collection="#[payload]">
+			<ee:transform doc:name="Transformed JSON for PAPI" doc:id="c7099923-6235-4e07-a1cb-5bc51d5989eb">
+			<ee:message>
+				<ee:set-payload resource="dwl/jsonPapi.dwl" />
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="id"><![CDATA[%dw 2.0
+output application/json
+---
+payload.Envelope.Body.notifications.Notification.Id]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+			<logger level="INFO" doc:name="Transformed JSON for PAPI" doc:id="4c447fa1-cb4c-4a3a-8a27-4c054ec549a0" message="#[payload]" />
+			<try doc:name="Try" doc:id="2aeedae4-5073-4474-9a8d-ff5fae7ba58a">
 			<http:request method="${papi.method}" doc:name="Request to ntn-accounts-sync-papi" doc:id="c145ddcf-9618-4e5e-941f-2fcd092c7848" config-ref="NTN-accounts-papi" path="${papi.path}">
 			<http:headers><![CDATA[#[output application/java
 ---
@@ -28,20 +45,120 @@ http://www.mulesoft.org/schema/mule/module-json-logger http://www.mulesoft.org/s
 	"Content-Type" : "application/json"
 }]]]></http:headers>
 		</http:request>
-			<error-handler >
-				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="93226c14-8c3b-4fd6-b4a6-d5918c77d1aa" type="ANY">
-					<logger level="INFO" doc:name="On Error Propagate Logger" doc:id="f71459cc-5d2d-44f1-9a00-33f769afec70" message="#[payload]"/>
-				</on-error-propagate>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="dd57b72c-26f9-4fbc-9eca-b0d345767199" type="ANY">
+					<ee:transform doc:name="Transform Message" doc:id="ed2a7d44-f257-49e6-8fa9-3c94821eb145">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+error.exception.detailMessage]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<logger level="INFO" doc:name="On Error Propagate Logger" doc:id="f71459cc-5d2d-44f1-9a00-33f769afec70" message="#[payload]" />
+					<flow-ref doc:name="Flow Reference" doc:id="01755214-a1bf-44f3-94cb-4985a828067f" name="email_notification_sub_Flow" />
+					<ee:transform doc:name="Transform Message" doc:id="58fa3f14-f5ed-4d2e-abf8-a44bfc6469ea">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns soapenv http://schemas.xmlsoap.org/soap/envelope/
+ns sforce http://soap.sforce.com/2005/09/outbound
+
+
+---
+{
+  'soapenv:Envelope' @('xmlns:soapenv': "http://schemas.xmlsoap.org/soap/envelope/"): {
+    'soapenv:Body': {
+      'notificationsResponse' @('xmlns': "http://soap.sforce.com/2005/09/outbound"): {
+        Ack: true
+
+      }
+    }
+  }
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				</on-error-continue>
 			</error-handler>
 		</try>
+		</foreach>
 		<ee:transform doc:name="Transform Message" doc:id="03dc488a-1edc-44a6-8184-37a61e9ca1c1" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
+ns soapenv http://schemas.xmlsoap.org/soap/envelope/
+ns sforce http://soap.sforce.com/2005/09/outbound
+
+
 ---
-payload]]></ee:set-payload>
+{
+  'soapenv:Envelope' @('xmlns:soapenv': "http://schemas.xmlsoap.org/soap/envelope/"): {
+    'soapenv:Body': {
+      'notificationsResponse' @('xmlns': "http://soap.sforce.com/2005/09/outbound"): {
+        Ack: true
+
+      }
+    }
+  }
+}
+]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<logger level="INFO" doc:name="End Logger of EAPI" doc:id="c92db340-1653-4cc0-a9a3-c74bdd8ff748" message="#[payload]"/>
 	</flow>
+	
+	<sub-flow name="email_notification_sub_Flow" doc:id="fceea73b-7fa6-4225-a048-ce5a05fe14ed" >
+		<email:send doc:name="Send" doc:id="80ec2ef9-05d6-4225-a46a-6fc32ae966cc" toAddresses="#[p('smtp.to') splitBy &quot;,&quot;]" fromAddress="${secure::smtp.user}" subject="#[&quot;*** E-mail Notification: &quot; ++ p('app.env') ++ &quot; Kind Attention *** Error Alert in  &quot; ++ p('app.name')]" config-ref="Email_SMTP1">
+			<email:body contentType="text/html" encoding="UTF-8">
+				<email:content ><![CDATA[#[%dw 2.0
+output application/xml
+skipNullOn="everywhere"
+
+---
+{
+    "html":{
+        "body":{
+            "div" @(class:"total"):{
+                "div" @(class:"header"):{
+                    "h2":"Alert from Mulesoft"
+                },
+                "div" @(class:"content"):{
+                    "p": "Hi,",
+                    "p": "Greetings!!!",
+					"p": "Error while processing, please take corrective action."
+                },
+
+                "div":{
+                    "table" @(width:'40%', border:'1', cellspacing:'0'): {
+							"tr":{
+                                "th": "InterfaceName",
+                                "td": p('app.name')
+                            },
+                          "tr":{
+                                "th": "Error Type",
+                                "td": error.errorType.asString
+                            },
+                          "tr":{
+                                "th": "Salesforce Id",
+                                "td": vars.id
+                            },
+                          "tr":{
+                                "th": "Error Message",
+                                "td": payload
+                            }
+                                                     
+				
+                        }
+                }
+            }
+        }
+    }
+}]]]></email:content>
+			</email:body>
+		</email:send>
+		<logger level="INFO" doc:name="Logger" doc:id="18906069-3453-4e01-8f3f-60f84aa30b64" message='#["email sent"]'/>
+	
+</sub-flow>
+	
 </mule>
