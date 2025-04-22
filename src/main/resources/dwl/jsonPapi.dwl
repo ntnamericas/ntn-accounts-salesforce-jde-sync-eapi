@@ -1,5 +1,12 @@
 %dw 2.0
 output application/json
+
+fun searchType(NTN_Company_Name__c, Type, Status__c) =
+    if (NTN_Company_Name__c ~= "NBCC" and Type ~= "Customer" and Status__c ~= "Active") "C"
+    else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "Customer" and Status__c != "Active") "CX"
+    else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "End User" and Status__c ~= "Active") "EU"
+    else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "End User" and Status__c != "Active") "EX"
+    else "Invalid-Search-Type"
 ---
 {
 	"ntnGlobalMarket": payload.sObject.NTN_Global_Market__c,
@@ -12,7 +19,7 @@ output application/json
 	"custTypeCode": payload.sObject.NTN_Cust_Type__c,
 	"dunsNumber": payload.sObject.Duns_Number__c,
 	"fax": payload.sObject.Fax,
-	"id": payload.Id,
+	"id": payload.sObject.Id,
 	"jdeAddressNumber": payload.sObject.JDE_AddressNumber__c,
 	"nbcaMarket": payload.sObject.NBCA_Market__c,
 	"ntnCustomerGroup": payload.sObject.NTN_Customer_Group__c,
@@ -27,7 +34,7 @@ output application/json
 	"shippingPostalCode": payload.sObject.ShippingPostalCode,
 	"shippingStreet": payload.sObject.ShippingStreet,
     "type": payload.sObject.Type,
-//    "searchType" : payload.sObject.Search_Type__c, 
+    "searchType" : searchType(payload.sObject.NTN_Company_Name__c,payload.sObject.Type,payload.sObject.Status__c ), 
 	"ntnCompanyName": payload.sObject.NTN_Company_Name__c ,
 	"mktRep": payload.sObject.MKT_REP__c,
 	"engineer": payload.sObject.Engineer__c,
