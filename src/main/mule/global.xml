@@ -44,5 +44,13 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
 			</email:properties>
 		</email:smtp-connection>
 	</email:smtp-config>
-<api-gateway:autodiscovery apiId="${api.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="f34fd54c-50c7-45ec-906b-6ea8c7632d35" flowRef="apiFlow"/>
+		<http:request-config name="NTN-accounts-papi" doc:name="HTTP Request configuration" doc:id="f7fa9ff9-fa9a-43d6-9f45-cce8a5d88fcf" >
+		<http:request-connection host="${papi.host}" port="${papi.port}" connectionIdleTimeout="300000" protocol="HTTPS"/>
+	</http:request-config>
+		<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="a1b0f697-188a-462e-95b5-ba0d7b364ca2" name="Router" api="ntn-accounts-salesforce-jde-sync-eapi.raml" >
+		<apikit:flow-mappings >
+			<apikit:flow-mapping resource="/accounts" action="get" flow-ref="ntn-account-updateFlow" />
+			<apikit:flow-mapping resource="/accounts" action="post" flow-ref="ntn-account-updateFlow" />
+		</apikit:flow-mappings>
+	</apikit:config>
 </mule>

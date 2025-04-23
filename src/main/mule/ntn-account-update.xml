@@ -10,10 +10,17 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/module-json-logger http://www.mulesoft.org/schema/mule/module-json-logger/current/mule-module-json-logger.xsd">
-	<http:request-config name="NTN-accounts-papi" doc:name="HTTP Request configuration" doc:id="e61217f5-e20b-4689-a037-1d5b59bf5704" >
-		<http:request-connection host="${papi.host}" port="${papi.port}" connectionIdleTimeout="300000" protocol="HTTPS"/>
-	</http:request-config>
-	<module-json-logger:config name="Json_logger_Config" doc:name="Json-logger Config" doc:id="454315af-1860-4392-87a5-8e60ebdce35d" />
+<email:smtp-config name="PWS_SMTP" doc:name="Email SMTP" doc:id="c0b5cfe4-73db-4e2d-810f-919e2f00171d" from="apps-noreply@prowesssoft.com">
+<email:smtp-connection host="smtp.office365.com" port="587" user="apps-noreply@prowesssoft.com" password="Admin@C0E">
+<email:properties >
+<email:property key="mail.smtp.starttls.enable" value="true" />
+<email:property key="mail.smtp.connectiontimeout" value="60000" />
+<email:property key="mail.smtptimeout" value="60000" />
+<email:property key="mail.smtp.writetimeout" value="60000" />
+<email:property key="mail.debug" value="true" />
+</email:properties>
+</email:smtp-connection>
+</email:smtp-config>
 	<flow name="ntn-account-updateFlow" doc:id="31d9aced-3c01-4b65-81a6-fe9fcba7cc8b" >
 		<logger level="INFO" doc:name="Incoming SOAP Message" doc:id="cd992a86-e61a-41ca-82f9-09e613634e17" message="#[payload]"/>
 		<ee:transform doc:name="Transform Message" doc:id="13aa5e9d-cc70-48f9-bfb8-aac20d68bf19" >
@@ -33,12 +40,12 @@ payload.Envelope.Body.notifications.*Notification]]></ee:set-payload>
 				<ee:set-variable variableName="id"><![CDATA[%dw 2.0
 output application/json
 ---
-payload.Envelope.Body.notifications.Notification.Id]]></ee:set-variable>
+payload.Id]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 			<logger level="INFO" doc:name="Transformed JSON for PAPI" doc:id="4c447fa1-cb4c-4a3a-8a27-4c054ec549a0" message="#[payload]" />
 			<try doc:name="Try" doc:id="2aeedae4-5073-4474-9a8d-ff5fae7ba58a">
-			<http:request method="${papi.method}" doc:name="Request to ntn-accounts-sync-papi" doc:id="c145ddcf-9618-4e5e-941f-2fcd092c7848" config-ref="NTN-accounts-papi" path="${papi.path}">
+			<http:request method="${papi.method}" doc:name="Request to ntn-accounts-sync-papi" doc:id="c145ddcf-9618-4e5e-941f-2fcd092c7848" config-ref="NTN-accounts-papi" path="${papi.path}" responseTimeout="${http.timeout}">
 			<http:headers><![CDATA[#[output application/java
 ---
 {
@@ -50,9 +57,15 @@ payload.Envelope.Body.notifications.Notification.Id]]></ee:set-variable>
 					<ee:transform doc:name="Transform Message" doc:id="ed2a7d44-f257-49e6-8fa9-3c94821eb145">
 						<ee:message>
 							<ee:set-payload><![CDATA[%dw 2.0
-output application/java
+output application/json
 ---
-error.exception.detailMessage]]></ee:set-payload>
+{
+  errorType: error.errorType.identifier,
+  message: error.detailedDescription,
+  description: error.description,
+  localizedMessage: error.exception.localizedMessage
+}
+]]></ee:set-payload>
 						</ee:message>
 					</ee:transform>
 					<logger level="INFO" doc:name="On Error Propagate Logger" doc:id="f71459cc-5d2d-44f1-9a00-33f769afec70" message="#[payload]" />
@@ -109,7 +122,7 @@ ns sforce http://soap.sforce.com/2005/09/outbound
 	</flow>
 	
 	<sub-flow name="email_notification_sub_Flow" doc:id="fceea73b-7fa6-4225-a048-ce5a05fe14ed" >
-		<email:send doc:name="Send" doc:id="80ec2ef9-05d6-4225-a46a-6fc32ae966cc" toAddresses="#[p('smtp.to') splitBy &quot;,&quot;]" fromAddress="${secure::smtp.user}" subject="#[&quot;*** E-mail Notification: &quot; ++ p('app.env') ++ &quot; Kind Attention *** Error Alert in  &quot; ++ p('app.name')]" config-ref="Email_SMTP1">
+		<email:send doc:name="Send" doc:id="80ec2ef9-05d6-4225-a46a-6fc32ae966cc" toAddresses="#[p('smtp.to') splitBy &quot;,&quot;]" subject="#[&quot;*** E-mail Notification: &quot; ++ p('app.env') ++ &quot; Kind Attention *** Error Alert in  &quot; ++ p('app.name')]" config-ref="PWS_SMTP">
 			<email:body contentType="text/html" encoding="UTF-8">
 				<email:content ><![CDATA[#[%dw 2.0
 output application/xml
@@ -137,7 +150,7 @@ skipNullOn="everywhere"
                             },
                           "tr":{
                                 "th": "Error Type",
-                                "td": error.errorType.asString
+                                "td": error.errorType.identifier
                             },
                           "tr":{
                                 "th": "Salesforce Id",
@@ -145,7 +158,15 @@ skipNullOn="everywhere"
                             },
                           "tr":{
                                 "th": "Error Message",
-                                "td": payload
+                                "td": payload.message
+                            },
+                          "tr":{
+                                "th": "Error Description",
+                                "td": payload.description
+                            },
+                          "tr":{
+                                "th": "Localized Message",
+                                "td": payload.localizedMessage
                             }
                                                      
 				

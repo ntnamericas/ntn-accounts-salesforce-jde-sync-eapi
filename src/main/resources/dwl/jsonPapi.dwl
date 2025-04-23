@@ -1,8 +1,15 @@
 %dw 2.0
 output application/json
+
+fun searchType(NTN_Company_Name__c, Type, Status__c) =
+    if (NTN_Company_Name__c ~= "NBCC" and Type ~= "Customer" and Status__c ~= "Active") "C"
+    else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "Customer" and Status__c != "Active") "CX"
+    else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "End User" and Status__c ~= "Active") "EU"
+    else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "End User" and Status__c != "Active") "EX"
+    else "Invalid-Search-Type"
 ---
 {
-"ntnGlobalMarket": payload.sObject.NTN_Global_Market__c,
+	"ntnGlobalMarket": payload.sObject.NTN_Global_Market__c,
     "ntnAdvPrcGrp": payload.sObject.NTN_ADV_PRC_GRP__c,
 	"alphaName": payload.sObject.Alpha_Name__c,
 	"billingAddressType": payload.sObject.Billing_Address_Type__c,
@@ -27,7 +34,7 @@ output application/json
 	"shippingPostalCode": payload.sObject.ShippingPostalCode,
 	"shippingStreet": payload.sObject.ShippingStreet,
     "type": payload.sObject.Type,
-//    "searchType" : payload.sObject.Search_Type__c, 
+    "searchType" : searchType(payload.sObject.NTN_Company_Name__c,payload.sObject.Type,payload.sObject.Status__c ), 
 	"ntnCompanyName": payload.sObject.NTN_Company_Name__c ,
 	"mktRep": payload.sObject.MKT_REP__c,
 	"engineer": payload.sObject.Engineer__c,
