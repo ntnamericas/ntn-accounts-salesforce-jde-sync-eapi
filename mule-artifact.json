@@ -1,4 +1,75 @@
 {
-    "minMuleVersion": "4.5.0",
-    "javaSpecificationVersions": ["17"]
+  "configs": [
+    "global.xml",
+    "api.xml",
+    "ntn-account-update.xml",
+    "health.xml"
+  ],
+  "secureProperties": [],
+  "supportedJavaVersions": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:ntn-accounts-salesforce-jde-sync-eapi:1.0.0-rc8",
+  "minMuleVersion": "4.5.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "api/data-types/request/sfInput.raml",
+        "api/data-types/response/health-status.raml",
+        "api/data-types/response/sfInput.raml",
+        "api/examples/200-generic-payload.raml",
+        "api/examples/200-health-payload.raml",
+        "api/examples/201-generic-payload.raml",
+        "api/examples/400-generic-payload.raml",
+        "api/examples/401-generic-payload.raml",
+        "api/examples/403-generic-payload.raml",
+        "api/examples/404-generic-payload.raml",
+        "api/examples/500-generic-payload.raml",
+        "api/examples/502-generic-payload.raml",
+        "api/examples/504-generic-payload.raml",
+        "api/examples/sfInput.xml",
+        "api/exchange.json",
+        "api/libraries/data-types.raml",
+        "api/libraries/resource-type.raml",
+        "api/ntn-accounts-salesforce-jde-sync-eapi.raml",
+        "api/resource-types/create-only.raml",
+        "api/resource-types/create-update.raml",
+        "api/resource-types/read-only.raml",
+        "api.xml",
+        "application-types.xml",
+        "dwl/common.yaml",
+        "dwl/customErrors.dwl",
+        "dwl/customErrorsMap.dwl",
+        "dwl/defaultErrors.dwl",
+        "dwl/error.dwl",
+        "dwl/errorhandlertransfromation.dwl",
+        "dwl/errorMap.dwl",
+        "dwl/getHealthResponse.dwl",
+        "dwl/getHealthUnhealthyResponse.dwl",
+        "dwl/jsonPapi.dwl",
+        "dwl/tranformInsert400Error.dwl",
+        "dwl/transformInsertErrorPayload.dwl",
+        "dwl/validationErrorMap.dwl",
+        "global.xml",
+        "health.xml",
+        "log4j2.xml",
+        "ntn-account-update.xml",
+        "properties/common.yaml",
+        "properties/dev-properties.yaml",
+        "properties/dev-secure-properties.yaml",
+        "properties/local-properties.yaml",
+        "properties/local-secure-properties.yaml",
+        "properties/prod-properties.yaml",
+        "properties/prod-secure-properties.yaml",
+        "properties/uat-properties.yaml",
+        "properties/uat-secure-properties.yaml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
 }

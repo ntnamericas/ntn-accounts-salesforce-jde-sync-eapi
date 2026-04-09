@@ -5,7 +5,7 @@ fun searchType(NTN_Company_Name__c, Type, Status__c) =
     if (NTN_Company_Name__c ~= "NBCC" and Type ~= "Customer" and Status__c ~= "Active") "C"
     else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "Customer" and Status__c != "Active") "CX"
     else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "End User" and Status__c ~= "Active") "EU"
-    else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "End User" and Status__c != "Active") "EX"
+    else if (NTN_Company_Name__c ~= "NBCC" and Type ~= "End User" and Status__c != "Active") "EUX"
     else "Invalid-Search-Type"
 ---
 {
